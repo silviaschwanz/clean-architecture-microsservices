@@ -1,0 +1,7 @@
+spring:
+  flyway:
+    cleanDisabled: false
+
+testcontainers:
+  reuse:
+    enable: true

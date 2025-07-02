@@ -1,0 +1,30 @@
+services:
+  payment-db:
+    image: postgres:15
+    container_name: payment-db-postgres
+    env_file: .env
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
+    ports:
+      - "${HOST_DB_PORT}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # Porta AMQP padrão
+      - "15672:15672"  # Porta do painel web de gerenciamento
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  db-data:
+  rabbitmq_data:

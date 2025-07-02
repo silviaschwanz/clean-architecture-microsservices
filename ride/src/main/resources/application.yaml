@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: clean-architecture
+  config:
+    import: optional:classpath:.env[.properties]
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: none
+
+logging:
+  level:
+    org:
+      flywaydb: DEBUG
+
+api:
+  version: /v1
+  base:
+    path: api
+
+services:
+  payment:
+    api:
+      url: http://localhost:3002

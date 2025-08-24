@@ -1,9 +1,7 @@
 package com.curso.payment.application.dto;
 
-import com.curso.payment.infra.fallback.PaymentMethod;
-
-public record TransactionInput(
-        PaymentMethod type,
+public record InputTransaction(
+        String type,
         String cardHolder,
         String creditCardNumber,
         String expDate,

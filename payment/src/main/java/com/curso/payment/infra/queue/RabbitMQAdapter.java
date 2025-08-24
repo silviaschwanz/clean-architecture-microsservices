@@ -5,13 +5,13 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RabbitMQQueue implements Queue{
+public class RabbitMQAdapter implements Queue{
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
     private final QueueListenerRegistry queueListenerRegistry;
 
-    public RabbitMQQueue(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper, QueueListenerRegistry queueListenerRegistry) {
+    public RabbitMQAdapter(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper, QueueListenerRegistry queueListenerRegistry) {
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
         this.queueListenerRegistry = queueListenerRegistry;

@@ -1,9 +1,9 @@
 package com.curso.payment.application;
 
-import com.curso.payment.application.dto.TransactionInput;
-import com.curso.payment.application.dto.TransactionOutput;
+import com.curso.payment.application.dto.InputTransaction;
+import com.curso.payment.application.dto.OutputTransaction;
 
 public interface PaymentGateway{
 
-    TransactionOutput createTransaction(TransactionInput input);
+    OutputTransaction createTransaction(InputTransaction input);
 }

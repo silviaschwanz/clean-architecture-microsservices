@@ -3,11 +3,13 @@ package com.curso.payment.infra.repository;
 import com.curso.payment.application.TransactionRepository;
 import com.curso.payment.domain.Transaction;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.UUID;
 
+@Repository
 public class TransactionPostgresRespository implements TransactionRepository {
 
     private final DataSource dataSource;
@@ -53,7 +55,7 @@ public class TransactionPostgresRespository implements TransactionRepository {
                         );
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error get transaction id: " + transactionId, e);
+            throw new RuntimeException("Error get transaction tid: " + transactionId, e);
         }
         throw new EntityNotFoundException("Transaction not found");
     }

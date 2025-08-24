@@ -2,8 +2,8 @@ package com.curso.payment.infra.fallback;
 
 import com.curso.payment.application.PaymentGateway;
 import com.curso.payment.application.PaymentProcessor;
-import com.curso.payment.application.dto.TransactionInput;
-import com.curso.payment.application.dto.TransactionOutput;
+import com.curso.payment.application.dto.InputTransaction;
+import com.curso.payment.application.dto.OutputTransaction;
 
 // Chain of Responsibility
 public class PJBankProcessor implements PaymentProcessor {
@@ -21,13 +21,22 @@ public class PJBankProcessor implements PaymentProcessor {
     }
 
     @Override
-    public TransactionOutput processPayment(TransactionInput input) {
-        if (input.type().equals(PaymentMethod.CIELO)) {
+    public PaymentMethod getSupportedMethod() {
+        return PaymentMethod.PJ_BANK;
+    }
+
+    @Override
+    public PaymentProcessor getNext() {
+        if (next == null) throw new IllegalStateException(PaymentErrorMessages.OUT_OF_PROCESSORS.format());
+        return next;
+    }
+
+    @Override
+    public OutputTransaction processPayment(InputTransaction input) {
+        try {
             return gateway.createTransaction(input);
-        } else if (next != null) {
-            return next.processPayment(input);
-        } else {
-            throw new IllegalStateException("Unsupported payment type: " + input.type());
+        } catch (Exception exception) {
+            return getNext().processPayment(input);
         }
     }
 

@@ -2,28 +2,27 @@ package com.curso.payment.application.usecase;
 
 import com.curso.payment.application.PaymentProcessor;
 import com.curso.payment.application.TransactionRepository;
-import com.curso.payment.application.dto.ProcessPaymentInput;
-import com.curso.payment.application.dto.ProcessPaymentOutput;
-import com.curso.payment.application.dto.TransactionInput;
-import com.curso.payment.application.dto.TransactionOutput;
+import com.curso.payment.application.dto.InputProcessPayment;
+import com.curso.payment.application.dto.InputTransaction;
+import com.curso.payment.application.dto.OutputProcessPayment;
+import com.curso.payment.application.dto.OutputTransaction;
 import com.curso.payment.domain.Transaction;
+import com.curso.payment.infra.fallback.PaymentMethod;
 import com.curso.payment.infra.fallback.PaymentProcessorFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ProcessPayment {
 
-    private final PaymentProcessor paymentProcessor;
     private final TransactionRepository transactionRepository;
 
     public ProcessPayment(TransactionRepository transactionRepository) {
-        this.paymentProcessor = PaymentProcessorFactory.createChain();
         this.transactionRepository = transactionRepository;
     }
 
-    public ProcessPaymentOutput execute(ProcessPaymentInput input) {
+    public OutputProcessPayment execute(InputProcessPayment input) {
         System.out.println("processPayment: " + input);
-        TransactionInput transactionInput = new TransactionInput(
+        InputTransaction transactionInput = new InputTransaction(
                 input.type(),
                  "Cliente Exemplo",
                 "4012001037141112",
@@ -31,24 +30,25 @@ public class ProcessPayment {
                 "123",
                 input.amount()
         );
+        PaymentProcessor paymentProcessor = PaymentProcessorFactory.createChain(PaymentMethod.from(input.type()));
         Transaction transaction = Transaction.create(input.rideId(), input.amount());
 
         try {
-            TransactionOutput transactionOutput = paymentProcessor.processPayment(transactionInput);
+            OutputTransaction transactionOutput = paymentProcessor.processPayment(transactionInput);
             if ("approved".equalsIgnoreCase(transactionOutput.status())) {
                 transaction.pay();
                 transactionRepository.saveTransaction(transaction);
-                return new ProcessPaymentOutput(
+                return new OutputProcessPayment(
                         transactionOutput.tid(),
                         transactionOutput.authorizationCode(),
                         transactionOutput.status()
                 );
             } else {
-                return new ProcessPaymentOutput("false", "Pagamento rejeitado", "deny");
+                return new OutputProcessPayment("false", "Pagamento rejeitado", "deny");
             }
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
-            return new ProcessPaymentOutput("false", "Erro ao processar pagamento: " + e.getMessage(), "error");
+            return new OutputProcessPayment("false", "Erro ao processar pagamento: " + e.getMessage(), "error");
         }
     }
 

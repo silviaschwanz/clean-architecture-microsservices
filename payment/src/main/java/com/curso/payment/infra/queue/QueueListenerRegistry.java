@@ -1,5 +1,6 @@
 package com.curso.payment.infra.queue;
 
+import com.curso.payment.application.dto.InputProcessPayment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -13,7 +14,7 @@ public class QueueListenerRegistry {
 
     private static final Map<String, QueueCallback<?>> callbacks = new ConcurrentHashMap<>();
     private static final Map<String, Class<?>> queueToClass = Map.of(
-            "rideCompleted.processPayment", com.curso.payment.application.dto.ProcessPaymentInput.class
+            "rideCompleted.processPayment", InputProcessPayment.class
             // adicione outros mapeamentos fila -> DTO aqui se precisar
     );
 

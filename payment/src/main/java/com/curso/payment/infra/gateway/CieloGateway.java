@@ -1,8 +1,8 @@
 package com.curso.payment.infra.gateway;
 
 import com.curso.payment.application.PaymentGateway;
-import com.curso.payment.application.dto.TransactionInput;
-import com.curso.payment.application.dto.TransactionOutput;
+import com.curso.payment.application.dto.InputTransaction;
+import com.curso.payment.application.dto.OutputTransaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -21,7 +21,7 @@ public class CieloGateway implements PaymentGateway {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public TransactionOutput createTransaction(TransactionInput input) {
+    public OutputTransaction createTransaction(InputTransaction input) {
 
         System.out.println("processing cielo");
 
@@ -87,6 +87,9 @@ public class CieloGateway implements PaymentGateway {
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("Resposta JSON completa da Cielo: " + response.body());
+
             ObjectNode responseBody = (ObjectNode) objectMapper.readTree(response.body());
             ObjectNode paymentNode = (ObjectNode) responseBody.get("Payment");
 
@@ -95,7 +98,7 @@ public class CieloGateway implements PaymentGateway {
                 status = "approved";
             }
 
-            return new TransactionOutput(
+            return new OutputTransaction(
                     paymentNode.get("Tid").asText(),
                     paymentNode.get("AuthorizationCode").asText(),
                     status

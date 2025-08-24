@@ -1,8 +1,8 @@
 package com.curso.payment.infra.gateway;
 
 import com.curso.payment.application.PaymentGateway;
-import com.curso.payment.application.dto.TransactionInput;
-import com.curso.payment.application.dto.TransactionOutput;
+import com.curso.payment.application.dto.InputTransaction;
+import com.curso.payment.application.dto.OutputTransaction;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,7 +22,7 @@ public class PJBankGateway implements PaymentGateway {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public TransactionOutput createTransaction(TransactionInput input) {
+    public OutputTransaction createTransaction(InputTransaction input) {
         System.out.println("processing pjbank");
 
         try {
@@ -53,11 +53,17 @@ public class PJBankGateway implements PaymentGateway {
             HttpResponse<String> response1 = httpClient.send(request1, HttpResponse.BodyHandlers.ofString());
             JsonNode responseBody1 = objectMapper.readTree(response1.body());
 
-            if (responseBody1.has("msg") && !responseBody1.get("msg").asText().isEmpty()) {
-                throw new RuntimeException("Erro ao gerar token: " + responseBody1.get("msg").asText());
+            System.out.println("Resposta completa da geração de token:");
+            System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseBody1));
+
+            String msg = responseBody1.has("msg") ? responseBody1.get("msg").asText() : "";
+
+            if (!msg.isEmpty() && !msg.equalsIgnoreCase("Sucesso ao tokenizar.")) {
+                throw new RuntimeException("Erro ao gerar token: " + msg);
             }
 
             String tokenCartao = responseBody1.get("token_cartao").asText();
+            System.out.println("Token gerado: " + tokenCartao);
 
             // Etapa 2: criar transação
             ObjectNode transaction = objectMapper.createObjectNode();
@@ -77,14 +83,19 @@ public class PJBankGateway implements PaymentGateway {
                     .build();
 
             HttpResponse<String> response2 = httpClient.send(request2, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("Resposta JSON completa da PJBank: " + response2.body());
+
             JsonNode responseBody2 = objectMapper.readTree(response2.body());
 
-            String status = "rejected";
-            if ("1".equals(responseBody2.get("autorizada").asText())) {
+            String status = responseBody2.has("status") ? responseBody2.get("status").asText() : "";
+            String autorizada = responseBody2.has("autorizada") ? responseBody2.get("autorizada").asText() : "";
+
+            if (status.equals("201") && autorizada.equals("1")) {
                 status = "approved";
             }
 
-            return new TransactionOutput(
+            return new OutputTransaction(
                     responseBody2.get("tid").asText(),
                     responseBody2.get("autorizacao").asText(),
                     status

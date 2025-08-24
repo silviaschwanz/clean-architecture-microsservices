@@ -1,7 +1,7 @@
 package com.curso.payment.infra.controller;
 
-import com.curso.payment.application.dto.ProcessPaymentInput;
-import com.curso.payment.application.dto.ProcessPaymentOutput;
+import com.curso.payment.application.dto.InputProcessPayment;
+import com.curso.payment.application.dto.OutputProcessPayment;
 import com.curso.payment.application.usecase.ProcessPayment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +20,8 @@ public class PaymentController {
     }
 
     @PostMapping("/process_payment")
-    public ResponseEntity<ProcessPaymentOutput> processPayment(@RequestBody ProcessPaymentInput input) {
-        ProcessPaymentOutput output = processPayment.execute(input);
+    public ResponseEntity<OutputProcessPayment> processPayment(@RequestBody InputProcessPayment input) {
+        OutputProcessPayment output = processPayment.execute(input);
         return ResponseEntity.ok(output);
     }
 
